@@ -1,0 +1,166 @@
+-- 1)
+-- ===========================
+-- Creacion e insert de las tablas sin normalizar:
+-- ===========================
+
+CREATE TABLE Venta (
+    IdVenta INT NOT NULL PRIMARY KEY,
+    FechaVenta DATETIME NOT NULL,
+    DniCliente VARCHAR(10) NOT NULL,
+    NombreEmpleado VARCHAR(100) NOT NULL,
+    NombreCliente VARCHAR(100) NOT NULL,
+    ImporteTotal DECIMAL(10,2) NOT NULL,
+    DireccionEnvioCliente VARCHAR(100),
+    DireccionSucursalVenta VARCHAR(100),
+    NombreSucursalVenta VARCHAR(100),
+    Producto VARCHAR(20),
+    Cantidad INT NOT NULL
+);
+
+-- Venta 1 - Cliente 1
+INSERT INTO Venta (
+    IdVenta, FechaVenta, DniCliente, NombreEmpleado, NombreCliente, 
+    ImporteTotal, DireccionEnvioCliente, DireccionSucursalVenta, 
+    NombreSucursalVenta, Producto, Cantidad
+) VALUES (
+    1, 
+    '2025-08-19 10:00:00', 
+    '12345678', 
+    'Juan Pérez', 
+    'Carlos López', 
+    2000.00, 
+    'Calle Falsa 123', 
+    'Av. Corrientes 456', 
+    'Sucursal Centro', 
+    'Silla', 
+    2
+);
+
+-- Venta 2 - Cliente 2 (misma fecha que la venta 1)
+INSERT INTO Venta (
+    IdVenta, FechaVenta, DniCliente, NombreEmpleado, NombreCliente, 
+    ImporteTotal, DireccionEnvioCliente, DireccionSucursalVenta, 
+    NombreSucursalVenta, Producto, Cantidad
+) VALUES (
+    2, 
+    '2025-08-19 10:00:00', 
+    '87654321', 
+    'Juan Pérez', 
+    'María González', 
+    3000.00, 
+    'Av. San Martín 456', 
+    'Av. Corrientes 456', 
+    'Sucursal Centro', 
+    'Mesa', 
+    1
+);
+
+-- Venta 3 - Cliente 2 (fecha diferente)
+INSERT INTO Venta (
+    IdVenta, FechaVenta, DniCliente, NombreEmpleado, NombreCliente, 
+    ImporteTotal, DireccionEnvioCliente, DireccionSucursalVenta, 
+    NombreSucursalVenta, Producto, Cantidad
+) VALUES (
+    3, 
+    '2025-08-20 15:30:00', 
+    '87654321', 
+    'Juan Pérez', 
+    'María González', 
+    4000.00, 
+    'Av. San Martín 456', 
+    'Av. Corrientes 456', 
+    'Sucursal Centro', 
+    'Mesa y Silla', 
+    2
+);
+
+
+-- 2)
+-- ===========================
+-- Fecha con más ventas:
+-- ===========================
+SELECT TOP 1 FechaVenta, COUNT(*) AS CantidadVentas
+FROM Venta
+GROUP BY FechaVenta
+ORDER BY CantidadVentas DESC;
+
+----------------------------------------------------------------------------------------------
+-- ===========================
+-- Creacion de las tablas nomalizadas:
+-- ===========================
+-- Cliente
+-- ===========================
+CREATE TABLE Cliente (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Dni VARCHAR(20) NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    DireccionEnvio VARCHAR(200),
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+    UpdatedDate DATETIME NOT NULL DEFAULT GETDATE()
+);
+
+-- ===========================
+-- Empleado
+-- ===========================
+CREATE TABLE Empleado (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+    UpdatedDate DATETIME NOT NULL DEFAULT GETDATE()
+);
+
+-- ===========================
+-- Sucursal
+-- ===========================
+CREATE TABLE Sucursal (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Direccion VARCHAR(200),
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+    UpdatedDate DATETIME NOT NULL DEFAULT GETDATE()
+);
+
+-- ===========================
+-- Producto
+-- ===========================
+CREATE TABLE Producto (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Precio DECIMAL(10,2) NOT NULL,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+    UpdatedDate DATETIME NOT NULL DEFAULT GETDATE()
+);
+
+-- ===========================
+-- Venta
+-- ===========================
+CREATE TABLE Venta (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    FechaVenta DATETIME NOT NULL,
+    ImporteTotal DECIMAL(12,2) NOT NULL,
+
+    ClienteId INT NOT NULL,
+    EmpleadoId INT NOT NULL,
+    SucursalId INT NOT NULL,
+
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+    UpdatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_Venta_Cliente FOREIGN KEY (ClienteId) REFERENCES Cliente(Id),
+    CONSTRAINT FK_Venta_Empleado FOREIGN KEY (EmpleadoId) REFERENCES Empleado(Id),
+    CONSTRAINT FK_Venta_Sucursal FOREIGN KEY (SucursalId) REFERENCES Sucursal(Id)
+);
+
+-- ===========================
+-- VentaProducto (relación N:N entre Venta y Producto)
+-- ===========================
+CREATE TABLE VentaProducto (
+    VentaId INT NOT NULL,
+    ProductoId INT NOT NULL,
+    Cantidad INT NOT NULL,
+
+    CONSTRAINT PK_VentaProducto PRIMARY KEY (VentaId, ProductoId),
+    CONSTRAINT FK_VentaProducto_Venta FOREIGN KEY (VentaId) REFERENCES Venta(Id),
+    CONSTRAINT FK_VentaProducto_Producto FOREIGN KEY (ProductoId) REFERENCES Producto(Id)
+);
+

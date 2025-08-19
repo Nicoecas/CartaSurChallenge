@@ -1,0 +1,7 @@
+dotnet ef migrations add InitialCreate --context CartaSurChallengeDbContext --output-dir Data\Migrations
+
+dotnet ef migrations add NUEVAMIGRACION --output-dir Data\Migrations
+
+dotnet ef migrations remove --context CartaSurChallengeDbContext
+
+dotnet ef database update --context CartaSurChallengeDbContext

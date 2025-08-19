@@ -1,0 +1,69 @@
+﻿@model IEnumerable<EmpleadosModel>
+
+@{
+    var nuevoEmpleado = new EmpleadosModel(); // Solo para generar los campos
+}
+
+<form asp-action="CargarEmpleado" method="post">
+    <div class="row">
+        <div class="col-6">
+            <label asp-for="@nuevoEmpleado.Nombre" class="form-label">Nombre</label>
+            <input asp-for="@nuevoEmpleado.Nombre" class="form-control" name="Nombre" />
+        </div>
+        <div class="col-6">
+            <label asp-for="@nuevoEmpleado.Apellido" class="form-label">Apellido</label>
+            <input asp-for="@nuevoEmpleado.Apellido" class="form-control" name="Apellido" />
+        </div>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+
+<br />
+<br />
+<div class="row">
+    <div class="col-5">
+        <div style="border:1px;">
+            <h3>
+                Activos
+            </h3>
+            <ul>
+                @foreach (var item in Model.Where(x => x.Activo))
+                {
+                    <li>
+                        @item.Nombre @item.Apellido
+                    </li>
+                }
+
+            </ul>
+        </div>
+        <br />
+        <div style="border:1px;">
+            <h3>
+                Inactivos
+            </h3>
+            <ul>
+                @foreach (var item in Model.Where(x => !x.Activo))
+                {
+                    <li>
+                        @item.Nombre @item.Apellido
+                    </li>
+                }
+
+            </ul>
+        </div>
+    </div>
+    <div class="col-7" style="border:1px;">
+        <h3>
+            Empleados
+        </h3>
+        <ul>
+            @foreach (var item in Model)
+            {
+                <li>
+                    @item.Nombre @item.Apellido
+                </li>
+            }
+        </ul>
+    </div>
+</div>
